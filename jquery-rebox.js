@@ -27,8 +27,8 @@
         changeScale:0.2,
         blowup:'+',
         shrink:'-',
-        leftRote:'<img style="width: 40px" src="'+basePath+'/js/picxc/leftRotate.png"/>',
-        rightRote:'<img style="width: 40px" src="'+basePath+'/js/picxc/rightRotate.png"/>',
+        leftRote:'<img style="width:32px" src="'+basePath+'/js/picxc/leftRotate.png"/>',
+        rightRote:'<img style="width:32px" src="'+basePath+'/js/picxc/rightRotate.png"/>',
         loading: '%',          // use an image, text, whatever for the loading notification
         close: '&times;',      // use an image, text, whatever for the close button
         speed: 400,            // speed to fade in or out
@@ -183,11 +183,18 @@
         },
         prev: function(){
             var t = this;
+            t.setDeful();
             return t.goto(t.idx===0? t.$items.length-1 : t.idx-1);
         },
         next: function(){
             var t = this;
+            t.setDeful();
             return t.goto(t.idx===t.$items.length-1? 0 : t.idx+1);
+        },
+        setDeful:function(){
+            var t = this;
+            t.settings.deg=0;
+            t.settings.scale=1;
         },
         disable: function(){
             var t = this;
