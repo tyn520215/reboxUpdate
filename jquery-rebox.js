@@ -27,6 +27,7 @@
         changeScale:0.2,
         blowup:'+',
         shrink:'-',
+        param:{ x:0,y:0,left:100,top:100,flags:false},
         leftRote:'<img style="width:32px" src="'+basePath+'/js/picxc/leftRotate.png"/>',
         rightRote:'<img style="width:32px" src="'+basePath+'/js/picxc/rightRotate.png"/>',
         loading: '%',          // use an image, text, whatever for the loading notification
@@ -38,7 +39,7 @@
         template: 'image',     // the default template to be used (see templates below)
         templates: {           // define templates to create the elements you need function($item, settings)
             image: function($item, settings, callback){
-                return $('<img src="'+ $item.attr('href') +'" class="'+ settings.theme +'-content" />').load(callback);
+                return $('<img src="'+ $item.attr('href') +'" id="contentImg"  style="position: absolute;cursor: move;" class="'+ settings.theme +'-content" />').load(callback);
             }
         }
     };
@@ -102,6 +103,7 @@
 
             t.$el.trigger('rebox:open',[t]);
             t.goto(i);
+
             return t.$el;
         },
         close: function(){
@@ -116,6 +118,31 @@
             $(document).off('.rebox');
 
             return t.$el;
+        },
+        move:function(){
+            var t =this;
+
+            var contImg = document.getElementById('contentImg');
+            var param = t.settings.param;
+
+            document.onmousemove = MyMouseMove;
+            function MyMouseMove(event){
+                if(param.flags){
+                    var nowX = event.clientX, nowY = event.clientY;
+                    var disX = nowX - param.x, disY = nowY - param.y;
+                    contImg.style.left = parseInt(param.left) + disX + "px";
+                    contImg.style.top = parseInt(param.top) + disY + "px";
+                }
+            }
+            document.onmouseup= MyMouseUp;
+            function MyMouseUp(event){
+                param.flags=false;
+                param.left=t.getCss(contImg,'left');
+                param.top=t.getCss(contImg,'top');
+            }
+        },
+        getCss:function(o,key){
+            return o.currentStyle? o.currentStyle[key] : document.defaultView.getComputedStyle(o,false)[key];
         },
         blowup:function(){
             var t = this;
@@ -168,9 +195,14 @@
             if($item.length){
                 t.idx = i;
                 $bi.html('<div class="'+ t.settings.theme +'-loading '+ t.settings.theme +'-button">'+ t.settings.loading +'</div>');
-
                 $img = t.settings.templates[$item.data('rebox-template') || t.settings.template]($item, t.settings, function(content){
                     $bi.empty().append($(this));
+                    $(this).mousedown(function(event){
+                        t.settings.param.flags=true;
+                        t.settings.param.x=event.clientX;
+                        t.settings.param.y=event.clientY;
+                    });
+                    t.move()
                 });
 
                 if(t.$items.length == 1 || !t.settings.cycle){
@@ -232,6 +264,7 @@
             $.rebox.lookup[++$.rebox.lookup.i] = new $.rebox($t, o);
             $t.data('rebox', $.rebox.lookup.i);
         });
+
     };
 
 
